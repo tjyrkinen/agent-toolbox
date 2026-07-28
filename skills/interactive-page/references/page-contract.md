@@ -127,10 +127,11 @@ The committed payload gains an `annotations` array:
 ```
 
 **Resolving an anchor back to source:** `blockId` is `b<N>` = the Nth *leaf* text block in document
-order (0-based) within the annotated region for all content present at initial render — for the
-document scaffold that is source line N (or `blocks[N]`), so it maps straight back. (Blocks inserted
-into a dynamic page *after* load are numbered in first-seen order, not document order, so resolve
-those by `quote` instead.) `start`/`end` are char offsets within the block's pure text.
+order (0-based) within the annotated region — for the document scaffold that is source line N (or
+`blocks[N]`), so it maps straight back. Blocks numbered after the initial pass (content rendered
+later, or markup the block selector doesn't recognize, which is anchored on first annotation) get
+first-seen rather than document order, so resolve those by `quote`. `start`/`end` are char offsets
+within the block's pure text.
 When a selection spans blocks (`multiBlock: true`), `blockIds` lists every block covered, `start` is
 an offset in the FIRST block and `end` in the LAST, and `quote` is the raw cross-block text (block
 boundaries unmarked) — resolve it via `blockIds` + offsets, not one string search. For a hand-authored

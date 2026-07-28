@@ -65,7 +65,19 @@
     blocks.forEach(el => { if (!el.hasAttribute('data-anchor')) el.setAttribute('data-anchor', 'b' + (blockSeq++)); });
     return blocks;
   }
-  const blockOf = node => { const el = node.nodeType === 1 ? node : node.parentElement; return el ? el.closest('[data-anchor]') : null; };
+  // Resolve a node to its anchored block. A page whose text lives in markup the block
+  // selector doesn't recognize (plain divs, as in the item scaffold) has no anchored
+  // ancestor — anchor the holding element itself so offsets and prefix/suffix still resolve
+  // instead of degrading to a bare quote.
+  const blockOf = node => {
+    const el = node.nodeType === 1 ? node : node.parentElement;
+    if (!el) return null;
+    const anchored = el.closest('[data-anchor]');
+    if (anchored) return anchored;
+    if (!rootEl().contains(el)) return null;
+    el.setAttribute('data-anchor', 'b' + (blockSeq++));
+    return el;
+  };
 
   function offsetWithin(block, node, off) {
     const r = document.createRange();
