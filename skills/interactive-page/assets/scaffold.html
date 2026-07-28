@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decide &amp; commit</title>
+<style>
+  :root{
+    --ground:#f5f7f7;--surface:#fff;--surface-2:#eef2f2;--ink:#131a1c;--ink-2:#47555a;--ink-3:#6d7c81;
+    --border:#dde4e4;--border-strong:#c6d0d0;--accent:#0d6b6a;--accent-soft:#e2efee;
+    --amber:#a45f04;--amber-soft:#fbeed6;--amber-line:#d8961f;--green:#1c7a44;--green-soft:#e0f0e6;
+    --red:#b23a2c;--red-soft:#f6e3e0;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --shadow:0 1px 2px rgba(19,26,28,.05),0 4px 16px rgba(19,26,28,.05);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --ground:#0d1315;--surface:#141c1f;--surface-2:#1b262a;--ink:#e7eded;--ink-2:#a3b1b4;--ink-3:#74858a;
+    --border:#26333a;--border-strong:#34454d;--accent:#3fb5b0;--accent-soft:#123232;
+    --amber:#e0a13c;--amber-soft:#2c2413;--amber-line:#b98424;--green:#4cbd77;--green-soft:#12291b;
+    --red:#e0776a;--red-soft:#2c1a17;--shadow:0 1px 2px rgba(0,0,0,.25),0 6px 22px rgba(0,0,0,.32);
+  }}
+  :root[data-theme="dark"]{
+    --ground:#0d1315;--surface:#141c1f;--surface-2:#1b262a;--ink:#e7eded;--ink-2:#a3b1b4;--ink-3:#74858a;
+    --border:#26333a;--border-strong:#34454d;--accent:#3fb5b0;--accent-soft:#123232;
+    --amber:#e0a13c;--amber-soft:#2c2413;--amber-line:#b98424;--green:#4cbd77;--green-soft:#12291b;
+    --red:#e0776a;--red-soft:#2c1a17;--shadow:0 1px 2px rgba(0,0,0,.25),0 6px 22px rgba(0,0,0,.32);
+  }
+  :root[data-theme="light"]{
+    --ground:#f5f7f7;--surface:#fff;--surface-2:#eef2f2;--ink:#131a1c;--ink-2:#47555a;--ink-3:#6d7c81;
+    --border:#dde4e4;--border-strong:#c6d0d0;--accent:#0d6b6a;--accent-soft:#e2efee;
+    --amber:#a45f04;--amber-soft:#fbeed6;--amber-line:#d8961f;--green:#1c7a44;--green-soft:#e0f0e6;
+    --red:#b23a2c;--red-soft:#f6e3e0;--shadow:0 1px 2px rgba(19,26,28,.05),0 4px 16px rgba(19,26,28,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:56rem;margin:0 auto;padding:2.2rem 1.4rem 8rem}
+  a{color:var(--accent)}
+  .loc{font-family:var(--mono);font-size:.78rem;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);padding:.06rem .4rem;border-radius:5px;word-break:break-all}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 .5rem}
+  h1{font-size:1.5rem;line-height:1.24;margin:0 0 .4rem;letter-spacing:-.015em;font-weight:680;text-wrap:balance}
+  .sub{color:var(--ink-3);font-size:.84rem;font-family:var(--mono);margin:0 0 1rem}
+  .banner{margin:1rem 0 1.6rem;padding:.8rem 1rem;border-left:3px solid var(--amber-line);background:var(--amber-soft);border-radius:0 8px 8px 0;font-size:.88rem}
+  .banner.info{border-color:var(--accent);background:var(--accent-soft)}
+  .verdict{display:flex;align-items:center;gap:.6rem;margin:0 0 1.8rem;font-weight:720;font-size:1.15rem}
+  .verdict .dot{width:.7rem;height:.7rem;border-radius:50%;background:var(--amber-line);box-shadow:0 0 0 4px color-mix(in srgb,var(--amber-line) 22%,transparent)}
+  .verdict.green .dot{background:var(--green);box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 22%,transparent)}
+  .verdict.red .dot{background:var(--red);box-shadow:0 0 0 4px color-mix(in srgb,var(--red) 22%,transparent)}
+  .sections{display:grid;gap:.8rem;margin:0 0 1.5rem}
+  .section{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:1rem 1.1rem}
+  .section h2{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 .65rem}
+  .section .body,.section pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:var(--ink-2);font:inherit;line-height:1.55}
+  .section pre{font-family:var(--mono);font-size:.8rem}
+  .kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:2rem 0 .9rem;display:flex;align-items:center;gap:.7rem}
+  .kicker::after{content:"";flex:1;height:1px;background:var(--border)}
+  .grouplbl{margin:1rem 0 .5rem;font-size:.75rem;font-weight:600;color:var(--ink)}
+
+  .item{border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:var(--shadow);margin-bottom:.8rem;overflow:hidden;transition:border-color .15s,opacity .15s}
+  .item[data-include="false"]{opacity:.62}
+  .item[data-mode="request_changes"][data-include="true"]{border-color:var(--red)}
+  .item-head{display:flex;gap:.85rem;align-items:flex-start;padding:1rem 1.15rem}
+  .num{flex:none;width:1.7rem;height:1.7rem;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-family:var(--mono);font-weight:700;font-size:.9rem;display:grid;place-items:center}
+  .item.needs .num{background:var(--amber-soft);color:var(--amber)}
+  .item-main{flex:1;min-width:0}
+  .item-title{font-weight:580;margin-bottom:.4rem}
+  .item-sub{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;font-size:.8rem}
+  .badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;padding:.14rem .5rem;border-radius:6px;font-family:var(--mono);font-weight:600}
+  .badge .bd{width:.45rem;height:.45rem;border-radius:50%}
+  .badge.validated{background:var(--green-soft);color:var(--green)}.badge.validated .bd{background:var(--green)}
+  .badge.refuted{background:var(--red-soft);color:var(--red)}.badge.refuted .bd{background:var(--red)}
+  .badge.neutral{background:var(--surface-2);color:var(--ink-3)}.badge.neutral .bd{background:var(--ink-3)}
+  .reason{font-size:.83rem;color:var(--ink-2);margin-top:.35rem}
+
+  .switch{flex:none;display:inline-flex;align-items:center;cursor:pointer;user-select:none}
+  .switch input{position:absolute;opacity:0;width:0;height:0}
+  .track{width:2.7rem;height:1.5rem;border-radius:100px;background:var(--border-strong);transition:background .15s;position:relative}
+  .track::after{content:"";position:absolute;top:.15rem;left:.15rem;width:1.2rem;height:1.2rem;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  .switch input:checked + .track{background:var(--green)}
+  .switch input:checked + .track::after{transform:translateX(1.2rem)}
+  .switch input:focus-visible + .track{outline:2px solid var(--accent);outline-offset:2px}
+  .switch .lbl{font-size:.72rem;font-family:var(--mono);color:var(--ink-3);margin-left:.5rem;width:2.4rem;text-align:left}
+
+  .controls{padding:0 1.15rem 1.1rem 3.7rem;display:flex;flex-direction:column;gap:.7rem}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center}
+  .seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden}
+  .seg button{appearance:none;border:0;background:var(--surface);color:var(--ink-2);font:inherit;font-size:.8rem;padding:.35rem .8rem;cursor:pointer;border-right:1px solid var(--border-strong)}
+  .seg button:last-child{border-right:0}
+  .seg button[aria-pressed="true"]{background:var(--accent);color:#fff;font-weight:600}
+  .item.needs .seg button[aria-pressed="true"]{background:var(--amber);color:#fff}
+  .seg-label{font-size:.72rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+  textarea{width:100%;min-height:2.6rem;resize:vertical;font-family:var(--sans);font-size:.9rem;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.55rem .7rem;line-height:1.45}
+  textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  textarea::placeholder{color:var(--ink-3)}
+  .general{margin-top:1.4rem}.general textarea{min-height:3.4rem}
+
+  .bar{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+  .bar-inner{max-width:56rem;margin:0 auto;padding:.85rem 1.4rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+  .summary{flex:1;min-width:12rem;font-size:.84rem;color:var(--ink-2)}
+  .summary b{color:var(--ink)}
+  .btn{appearance:none;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);font:inherit;font-weight:600;font-size:.9rem;padding:.55rem 1.1rem;border-radius:9px;cursor:pointer;transition:transform .1s}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn.cancel{color:var(--ink-2)}
+  .btn.discuss{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+
+  .done{position:fixed;inset:0;background:var(--ground);display:none;place-items:center;padding:2rem;text-align:center;z-index:10}
+  .done.show{display:grid}
+  .done .ic{width:3.4rem;height:3.4rem;border-radius:50%;display:grid;place-items:center;margin:0 auto 1rem;font-size:1.6rem}
+  .done .ic.ok{background:var(--green-soft);color:var(--green)}
+  .done .ic.talk{background:var(--accent-soft);color:var(--accent)}
+  .done .ic.cx{background:var(--surface-2);color:var(--ink-3)}
+  .done h2{margin:0 0 .5rem;font-size:1.2rem}.done p{color:var(--ink-2);margin:0;max-width:30rem}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media (max-width:560px){.controls{padding-left:1.15rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow" id="eyebrow"></p>
+  <h1 id="title"></h1>
+  <p class="sub" id="subtitle"></p>
+  <div id="banner"></div>
+  <div id="verdict"></div>
+  <div class="sections" id="sections"></div>
+  <p class="kicker" id="sectionLabel"></p>
+  <div id="items"></div>
+  <div class="general" id="generalWrap">
+    <p class="kicker">Overall note (optional)</p>
+    <textarea id="generalNote"></textarea>
+  </div>
+</div>
+<div class="bar"><div class="bar-inner">
+  <div class="summary" id="summary"></div>
+  <span id="footer"></span>
+</div></div>
+<div class="done" id="done">
+  <div><div class="ic ok" id="doneIc">✓</div><h2 id="doneTitle">Committed</h2><p id="doneMsg"></p></div>
+</div>
+
+<script>
+  // --- config + data (server injects; falls back to sensible dev defaults) ---
+  const _N = "__NONCE__";
+  const NONCE = /^[A-Za-z0-9_-]{10,}$/.test(_N) ? _N : (new URLSearchParams(location.search).get('n') || '');
+  const D = (__PAGE_DATA__) || {};
+  const ITEMS = (D.items || []).map(i => ({ include:false, mode:(i.modes&&i.modes[0])||null, note:'', ...i }));
+  const FOOTER = D.footer || [
+    {id:'cancel', label:'Cancel', kind:'cancel'},
+    {id:'discuss', label:'Discuss first', kind:'discuss'},
+    {id:'commit', label:'Commit', kind:'primary'}
+  ];
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  $('eyebrow').textContent = D.eyebrow || 'Review · commit from this page';
+  $('title').textContent = D.title || 'Decide & commit';
+  if (D.subtitle) $('subtitle').textContent = D.subtitle; else $('subtitle').remove();
+  if (D.banner){ const b=$('banner'); b.className='banner'+(D.banner.tone==='info'?' info':''); b.innerHTML=esc(D.banner.text); } else $('banner').remove();
+  if (D.verdict){ const v=$('verdict'); v.className='verdict '+(D.verdict.tone||''); v.innerHTML='<span class="dot"></span>'+esc(D.verdict.label); } else $('verdict').remove();
+  const sections = D.sections || [];
+  if (sections.length) {
+    const host = $('sections');
+    sections.forEach(section => {
+      const el = document.createElement('section');
+      el.className = 'section';
+      const title = document.createElement('h2');
+      title.textContent = section.label || '';
+      const body = document.createElement(section.format === 'pre' ? 'pre' : 'div');
+      body.className = section.format === 'pre' ? '' : 'body';
+      body.textContent = section.body || '';
+      el.append(title, body);
+      host.appendChild(el);
+    });
+  } else $('sections').remove();
+  $('sectionLabel').textContent = D.sectionLabel || 'Items — toggle what to include';
+  $('generalNote').placeholder = D.generalNotePlaceholder || 'Anything spanning the whole set…';
+  if (D.hideGeneralNote) $('generalWrap').remove();
+
+  const modeLabel = (it,m) => (it.modeLabels && it.modeLabels[m]) || m;
+  const httpUrl = raw => {
+    try {
+      const url = new URL(raw, location.href);
+      return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+    } catch (e) {
+      return null;
+    }
+  };
+  const host = $('items'); const groups = new Set();
+
+  ITEMS.forEach(it => {
+    if (it.group && !groups.has(it.group)){ groups.add(it.group); const g=document.createElement('div'); g.className='grouplbl'; g.textContent=it.group; host.appendChild(g); }
+    const el = document.createElement('div');
+    el.className = 'item' + (it.kind==='needs'?' needs':'');
+    el.dataset.include = String(it.include); el.dataset.mode = it.mode || '';
+    const badge = it.badge ? `<span class="badge ${esc(it.badge.kind||'neutral')}"><span class="bd"></span>${esc(it.badge.label)}</span>` : '';
+    const link = it.link ? '<span data-role="link"></span>' : '';
+    const loc = it.loc ? `<span class="loc">${esc(it.loc)}</span>` : '';
+    const reason = it.badge && it.badge.reason ? `<div class="reason">${esc(it.badge.reason)}</div>` : '';
+    const seg = it.modes ? `<div class="ctl-row"><span class="seg-label">${esc(it.kind==='needs'?'Decision':'As')}</span><div class="seg" data-role="seg">${it.modes.map(m=>`<button type="button" data-mode="${esc(m)}" aria-pressed="${m===it.mode}">${esc(modeLabel(it,m))}</button>`).join('')}</div></div>` : '';
+    el.innerHTML = `
+      <div class="item-head">
+        <div class="num">${esc(it.num||'')}</div>
+        <div class="item-main">
+          <div class="item-title">${esc(it.title)}</div>
+          <div class="item-sub">${loc}${link}${badge}</div>${reason}
+        </div>
+        <label class="switch" title="Include">
+          <input type="checkbox" ${it.include?'checked':''} data-role="inc">
+          <span class="track"></span><span class="lbl" data-role="inclbl">${it.include?'On':'Off'}</span>
+        </label>
+      </div>
+      <div class="controls">${seg}
+        <textarea data-role="note" placeholder="${esc(D.notePlaceholder||'Custom instruction for this item…')}"></textarea>
+      </div>`;
+    host.appendChild(el);
+    const linkHost = el.querySelector('[data-role="link"]');
+    const linkUrl = linkHost ? httpUrl(it.link) : null;
+    if (linkUrl) {
+      const anchor = document.createElement('a');
+      anchor.href = linkUrl;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener';
+      anchor.textContent = 'view ↗';
+      linkHost.replaceWith(anchor);
+    } else if (linkHost) {
+      linkHost.remove();
+    }
+    const inc = el.querySelector('[data-role="inc"]'), incLbl = el.querySelector('[data-role="inclbl"]');
+    inc.addEventListener('change', ()=>{ it.include=inc.checked; el.dataset.include=String(it.include); incLbl.textContent=it.include?'On':'Off'; refresh(); });
+    el.querySelectorAll('[data-role="seg"] button').forEach(b=>b.addEventListener('click', ()=>{ it.mode=b.dataset.mode; el.dataset.mode=it.mode; el.querySelectorAll('[data-role="seg"] button').forEach(x=>x.setAttribute('aria-pressed', String(x===b))); refresh(); }));
+    el.querySelector('[data-role="note"]').addEventListener('input', e=>it.note=e.target.value);
+  });
+
+  function refresh(){
+    const on = ITEMS.filter(i=>i.include);
+    const rc = on.some(i=>i.mode==='request_changes');
+    $('summary').innerHTML = `<b>${on.length}</b> of ${ITEMS.length} selected` + (on.some(i=>i.mode==='request_changes') ? ` · <b>REQUEST_CHANGES</b>` : (D.verdict? ` · <b>APPROVE</b>`:''));
+    return rc;
+  }
+
+  const fbar = $('footer');
+  FOOTER.forEach(f=>{ const b=document.createElement('button'); b.type='button'; b.className='btn '+(f.kind||''); b.textContent=f.label; b.addEventListener('click', ()=>commit(f)); fbar.appendChild(b); });
+  refresh();
+
+  let sent=false;
+  async function commit(f){
+    if(sent) return;
+    sent=true;
+    fbar.querySelectorAll('button').forEach(button=>button.disabled=true);
+    const rc = ITEMS.filter(i=>i.include).some(i=>i.mode==='request_changes');
+    const payload = {
+      nonce: NONCE, action: f.id, actionKind: f.kind || 'primary',
+      generalNote: (D.hideGeneralNote?'':$('generalNote').value),
+      event: rc ? 'REQUEST_CHANGES' : 'APPROVE',
+      items: ITEMS.map(i=>({id:i.id, kind:i.kind, title:i.title, loc:i.loc, include:i.include, mode:i.mode, note:i.note}))
+    };
+    const ic=$('doneIc'), t=$('doneTitle'), m=$('doneMsg');
+    if(f.kind==='cancel'){ ic.className='ic cx'; ic.textContent='✕'; t.textContent='Cancelled'; m.textContent='Nothing was committed. Return to the chat.'; }
+    else if(f.kind==='discuss'){ ic.className='ic talk'; ic.textContent='💬'; t.textContent='Sent for discussion'; m.textContent='Your selections and notes are back in the chat; nothing will be acted on until you agree.'; }
+    else { ic.className='ic ok'; ic.textContent='✓'; t.textContent='Committed'; m.textContent='Your choices are on their way back to the chat. You can close this tab.'; }
+    try{ await fetch('/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); }
+    catch(e){ sent=false; fbar.querySelectorAll('button').forEach(button=>button.disabled=false); ic.className='ic cx'; ic.textContent='!'; t.textContent='Could not reach the agent'; m.textContent='The local server did not respond — check the chat.'; }
+    $('done').classList.add('show');
+  }
+</script>
+</body>
+</html>
